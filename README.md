@@ -1,19 +1,9 @@
-# Professional Grammar Checker
+# Grammar Checker API
 
-A professional English grammar checker tool built with Python Flask and LanguageTool.
+This project uses **LanguageTool Public API** to check grammar and spelling.
 
-## Features
+## How to Run
 
-- ✅ Grammar and spelling checking
-- ✅ Punctuation correction
-- ✅ Context-aware suggestions
-- ✅ Real-time error detection
-- ✅ Professional UI/UX design
-- ✅ SEO optimized
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone <your-repository-url>
-cd <repository-name>
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
