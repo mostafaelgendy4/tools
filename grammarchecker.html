@@ -37,15 +37,9 @@
       border-radius: 5px;
       box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
     }
-    .issue {
-      margin-bottom: 12px;
-      padding: 10px;
-      background: #f1f1f1;
-      border-left: 4px solid #007bff;
-    }
-    .suggestions {
-      color: green;
+    .corrected {
       font-weight: bold;
+      color: green;
     }
   </style>
 </head>
@@ -73,27 +67,18 @@
 
         const result = await response.json();
 
-        if (result.matches.length === 0) {
-          resultsDiv.innerHTML = "<p>No issues found 🎉</p>";
-        } else {
-          resultsDiv.innerHTML = "";
-          result.matches.forEach((match, index) => {
-            const issue = document.createElement("div");
-            issue.classList.add("issue");
+        let correctedText = text;
+        // apply replacements from last to first to avoid messing up offsets
+        result.matches.reverse().forEach(match => {
+          if (match.replacements.length > 0) {
+            const replacement = match.replacements[0].value;
+            const offset = match.offset;
+            const length = match.length;
+            correctedText = correctedText.substring(0, offset) + replacement + correctedText.substring(offset + length);
+          }
+        });
 
-            const context = match.context.text;
-            const offset = match.context.offset;
-            const length = match.context.length;
-            const errorText = context.substr(offset, length);
-
-            issue.innerHTML = `
-              <p><b>Issue ${index + 1}:</b> "${errorText}"</p>
-              <p class="suggestions">Suggestions: ${match.replacements.map(r => r.value).join(", ")}</p>
-            `;
-
-            resultsDiv.appendChild(issue);
-          });
-        }
+        resultsDiv.innerHTML = `<p class="corrected">Corrected Sentence:<br>${correctedText}</p>`;
       } catch (error) {
         resultsDiv.innerHTML = "Failed to check grammar. Please try again.";
       }
