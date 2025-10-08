@@ -3,104 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Self-Hosted Grammar Checker</title>
+    <title>Professional Grammar Checker</title>
+    <meta name="description" content="Free online grammar checker tool for English text. Check spelling, grammar, and punctuation errors instantly.">
     <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #6c757d;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background: #f5f5f5;
         }
+        
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
         }
+        
+        .grammar-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .input-section, .results-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         textarea {
             width: 100%;
-            height: 150px;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
             font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
         }
-        button {
-            background: #007cba;
-            color: white;
-            padding: 12px 25px;
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 30px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .corrected-text {
+            background: var(--light);
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 150px;
+            white-space: pre-wrap;
+            line-height: 1.8;
             font-size: 16px;
         }
-        button:hover {
-            background: #005a87;
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
         }
-        .result {
-            margin-top: 20px;
+        
+        .stat-card {
+            background: white;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
         }
-        .error {
-            color: #dc3545;
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
         }
-        .success {
-            color: #28a745;
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
         }
+        
+        .errors-list {
+            margin-top: 20px;
+        }
+        
+        .error-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: #856404;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .suggestions {
+            color: var(--success);
+            font-weight: 500;
+        }
+        
         .loader {
             display: none;
             text-align: center;
-            margin: 10px 0;
+            padding: 30px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background: #d1edff;
+            color: var(--primary-dark);
+            border: 1px solid #b3d9ff;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .grammar-card {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔍 Self-Hosted Grammar Checker</h1>
-        <p>Enter your English text below to check for grammar and spelling errors.</p>
-        
-        <textarea id="inputText" placeholder="Type your English text here... For example: I am go to school every days"></textarea>
-        <br>
-        <button onclick="checkGrammar()">Check Grammar</button>
-        
-        <div class="loader" id="loader">
-            <p>Checking your text...</p>
-        </div>
-        
-        <div class="result" id="result" style="display:none;">
-            <h3>📝 Corrected Text:</h3>
-            <p id="correctedText"></p>
-            <p><strong>Errors Found:</strong> <span id="errorsCount">0</span></p>
+        <div class="grammar-card">
+            <div class="header">
+                <h1>🔍 Grammar Checker</h1>
+                <p>Check your English text for grammar, spelling, and punctuation errors</p>
+            </div>
             
-            <div id="errorsList" style="margin-top: 15px;"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+            <div class="alert alert-success" id="successAlert"></div>
+            
+            <div class="input-section">
+                <h2 class="section-title">📝 Enter Your Text</h2>
+                <textarea id="inputText" placeholder="Type or paste your English text here...&#10;Example: I am go to school every days and does my homeworks"></textarea>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="checkGrammar()">
+                        <span>🔍 Check Grammar</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearText()">
+                        <span>🗑️ Clear</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p>Checking your text for errors...</p>
+            </div>
+            
+            <div class="results-section" id="resultsSection">
+                <h2 class="section-title">✅ Results</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="errorsCount">0</div>
+                        <div class="stat-label">Errors Found</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="suggestionsCount">0</div>
+                        <div class="stat-label">Suggestions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="timeTaken">0s</div>
+                        <div class="stat-label">Time Taken</div>
+                    </div>
+                </div>
+                
+                <h3 class="section-title">📄 Corrected Text</h3>
+                <div class="corrected-text" id="correctedText"></div>
+                
+                <div class="errors-list" id="errorsList"></div>
+            </div>
         </div>
     </div>
 
     <script>
+        let startTime;
+        
         async function checkGrammar() {
-            const inputText = document.getElementById('inputText').value;
-            const resultDiv = document.getElementById('result');
-            const correctedText = document.getElementById('correctedText');
-            const errorsCount = document.getElementById('errorsCount');
-            const errorsList = document.getElementById('errorsList');
+            const inputText = document.getElementById('inputText').value.trim();
+            const resultsSection = document.getElementById('resultsSection');
             const loader = document.getElementById('loader');
+            const errorAlert = document.getElementById('errorAlert');
+            const successAlert = document.getElementById('successAlert');
             
-            // إخفاء النتائج السابقة
-            resultDiv.style.display = 'none';
-            errorsList.innerHTML = '';
+            // Hide previous results and alerts
+            resultsSection.style.display = 'none';
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
             
-            if (!inputText.trim()) {
-                alert('Please enter some text to check');
+            // Validate input
+            if (!inputText) {
+                showError('Please enter some text to check.');
                 return;
             }
             
-            // إظهار مؤشر التحميل
+            if (inputText.length < 5) {
+                showError('Please enter at least 5 characters.');
+                return;
+            }
+            
+            // Show loader
             loader.style.display = 'block';
+            startTime = new Date();
             
             try {
                 const response = await fetch('/check-grammar', {
@@ -113,43 +355,108 @@
                 
                 const data = await response.json();
                 
-                // إخفاء مؤشر التحميل
-                loader.style.display = 'none';
+                if (!response.ok) {
+                    throw new Error(data.error || 'Server error');
+                }
                 
                 if (data.success) {
-                    // عرض النتائج
-                    correctedText.textContent = data.correctedText;
-                    errorsCount.textContent = data.errorsCount;
-                    
-                    // عرض الأخطاء إن وجدت
-                    if (data.errors.length > 0) {
-                        errorsList.innerHTML = '<h4>🔧 Detailed Errors:</h4>';
-                        data.errors.forEach(error => {
-                            const errorDiv = document.createElement('div');
-                            errorDiv.style.cssText = 'background: #fff3cd; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ffeaa7;';
-                            errorDiv.innerHTML = `
-                                <strong>Error:</strong> "${error.message}"<br>
-                                <strong>Suggestions:</strong> ${error.replacements.map(r => r.value).join(', ')}
-                            `;
-                            errorsList.appendChild(errorDiv);
-                        });
-                    }
-                    
-                    resultDiv.style.display = 'block';
+                    displayResults(data);
+                    showSuccess('Text checked successfully!');
                 } else {
-                    alert('Error: ' + data.error);
+                    throw new Error(data.error || 'Unknown error');
                 }
                 
             } catch (error) {
-                loader.style.display = 'none';
                 console.error('Error:', error);
-                alert('Error connecting to grammar service. Make sure the server is running on port 5000.');
+                showError('Failed to check grammar: ' + error.message);
+            } finally {
+                loader.style.display = 'none';
             }
         }
         
-        // تفعيل الزر عند الضغط على Enter
-        document.getElementById('inputText').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const correctedText = document.getElementById('correctedText');
+            const errorsCount = document.getElementById('errorsCount');
+            const suggestionsCount = document.getElementById('suggestionsCount');
+            const timeTaken = document.getElementById('timeTaken');
+            const errorsList = document.getElementById('errorsList');
+            
+            // Calculate time taken
+            const endTime = new Date();
+            const timeDiff = (endTime - startTime) / 1000;
+            timeTaken.textContent = timeDiff.toFixed(2) + 's';
+            
+            // Update stats
+            errorsCount.textContent = data.errorsCount;
+            suggestionsCount.textContent = data.errors.reduce((count, error) => 
+                count + (error.replacements ? error.replacements.length : 0), 0);
+            
+            // Display corrected text
+            correctedText.textContent = data.correctedText;
+            
+            // Display errors list
+            errorsList.innerHTML = '';
+            if (data.errors.length > 0) {
+                const errorsTitle = document.createElement('h3');
+                errorsTitle.className = 'section-title';
+                errorsTitle.innerHTML = '⚠️ Detected Errors';
+                errorsList.appendChild(errorsTitle);
+                
+                data.errors.forEach((error, index) => {
+                    const errorItem = document.createElement('div');
+                    errorItem.className = 'error-item';
+                    
+                    let suggestionsHtml = '';
+                    if (error.replacements && error.replacements.length > 0) {
+                        suggestionsHtml = `
+                            <div class="suggestions">
+                                <strong>Suggestions:</strong> 
+                                ${error.replacements.map(rep => rep.value).join(', ')}
+                            </div>
+                        `;
+                    }
+                    
+                    errorItem.innerHTML = `
+                        <div class="error-message">
+                            <strong>Error ${index + 1}:</strong> ${error.message}
+                        </div>
+                        ${suggestionsHtml}
+                        <div style="color: #666; font-size: 0.9rem; margin-top: 5px;">
+                            <strong>Context:</strong> "${error.context}"
+                        </div>
+                    `;
+                    
+                    errorsList.appendChild(errorItem);
+                });
+            }
+            
+            // Show results section
+            resultsSection.style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+        }
+        
+        function showSuccess(message) {
+            const successAlert = document.getElementById('successAlert');
+            successAlert.textContent = message;
+            successAlert.style.display = 'block';
+        }
+        
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('successAlert').style.display = 'none';
+        }
+        
+        // Enable Ctrl+Enter to check grammar
+        document.getElementById('inputText').addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
                 checkGrammar();
             }
         });
