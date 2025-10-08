@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Hosted Grammar Checker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #28a745;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Self-Hosted Grammar Checker</h1>
+        <p>Enter your English text below to check for grammar and spelling errors.</p>
+        
+        <textarea id="inputText" placeholder="Type your English text here... For example: I am go to school every days"></textarea>
+        <br>
+        <button onclick="checkGrammar()">Check Grammar</button>
+        
+        <div class="loader" id="loader">
+            <p>Checking your text...</p>
+        </div>
+        
+        <div class="result" id="result" style="display:none;">
+            <h3>📝 Corrected Text:</h3>
+            <p id="correctedText"></p>
+            <p><strong>Errors Found:</strong> <span id="errorsCount">0</span></p>
+            
+            <div id="errorsList" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        async function checkGrammar() {
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+            const correctedText = document.getElementById('correctedText');
+            const errorsCount = document.getElementById('errorsCount');
+            const errorsList = document.getElementById('errorsList');
+            const loader = document.getElementById('loader');
+            
+            // إخفاء النتائج السابقة
+            resultDiv.style.display = 'none';
+            errorsList.innerHTML = '';
+            
+            if (!inputText.trim()) {
+                alert('Please enter some text to check');
+                return;
+            }
+            
+            // إظهار مؤشر التحميل
+            loader.style.display = 'block';
+            
+            try {
+                const response = await fetch('/check-grammar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+                
+                const data = await response.json();
+                
+                // إخفاء مؤشر التحميل
+                loader.style.display = 'none';
+                
+                if (data.success) {
+                    // عرض النتائج
+                    correctedText.textContent = data.correctedText;
+                    errorsCount.textContent = data.errorsCount;
+                    
+                    // عرض الأخطاء إن وجدت
+                    if (data.errors.length > 0) {
+                        errorsList.innerHTML = '<h4>🔧 Detailed Errors:</h4>';
+                        data.errors.forEach(error => {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.style.cssText = 'background: #fff3cd; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ffeaa7;';
+                            errorDiv.innerHTML = `
+                                <strong>Error:</strong> "${error.message}"<br>
+                                <strong>Suggestions:</strong> ${error.replacements.map(r => r.value).join(', ')}
+                            `;
+                            errorsList.appendChild(errorDiv);
+                        });
+                    }
+                    
+                    resultDiv.style.display = 'block';
+                } else {
+                    alert('Error: ' + data.error);
+                }
+                
+            } catch (error) {
+                loader.style.display = 'none';
+                console.error('Error:', error);
+                alert('Error connecting to grammar service. Make sure the server is running on port 5000.');
+            }
+        }
+        
+        // تفعيل الزر عند الضغط على Enter
+        document.getElementById('inputText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                checkGrammar();
+            }
+        });
+    </script>
+</body>
+</html>
