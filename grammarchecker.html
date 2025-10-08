@@ -1,465 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Grammar Checker</title>
-    <meta name="description" content="Free online grammar checker tool for English text. Check spelling, grammar, and punctuation errors instantly.">
-    <style>
-        :root {
-            --primary: #3498db;
-            --primary-dark: #2980b9;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
-            --dark: #2c3e50;
-            --gray: #6c757d;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .grammar-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: var(--dark);
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-        }
-        
-        .header p {
-            color: var(--gray);
-            font-size: 1.1rem;
-        }
-        
-        .input-section, .results-section {
-            margin-bottom: 25px;
-        }
-        
-        .section-title {
-            color: var(--dark);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            resize: vertical;
-            transition: all 0.3s ease;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            flex: 1;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .results-section {
-            display: none;
-        }
-        
-        .corrected-text {
-            background: var(--light);
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            min-height: 150px;
-            white-space: pre-wrap;
-            line-height: 1.8;
-            font-size: 16px;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        
-        .errors-list {
-            margin-top: 20px;
-        }
-        
-        .error-item {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .error-message {
-            color: #856404;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .suggestions {
-            color: var(--success);
-            font-weight: 500;
-        }
-        
-        .loader {
-            display: none;
-            text-align: center;
-            padding: 30px;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            display: none;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-success {
-            background: #d1edff;
-            color: var(--primary-dark);
-            border: 1px solid #b3d9ff;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .grammar-card {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Grammar Checker - Correct English Grammar Online</title>
+  <meta name="description" content="Free online grammar checker tool. Instantly correct grammar, spelling, and punctuation errors in your English text with smart suggestions.">
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --light: #f8f9fa;
+      --dark: #2c3e50;
+      --gray: #6c757d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: auto; }
+    .grammar-card {
+      background: #fff; padding: 30px; border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0,0,0,.1);
+    }
+    .header { text-align: center; margin-bottom: 25px; }
+    .header h1 { font-size: 2.2rem; color: var(--dark); margin-bottom: 10px; }
+    .header p { color: var(--gray); }
+
+    textarea {
+      width: 100%; height: 200px; padding: 15px;
+      border: 2px solid #e9ecef; border-radius: 10px;
+      resize: vertical; font-size: 16px;
+    }
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52,152,219,.2);
+      outline: none;
+    }
+
+    .controls { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+    .btn {
+      flex: 1; padding: 12px; font-weight: 600;
+      border: none; border-radius: 8px;
+      cursor: pointer; transition: all .3s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: .9; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-secondary:hover { background: #5a6268; }
+
+    .alert {
+      padding: 12px; border-radius: 8px; margin: 15px 0; display: none;
+      font-weight: 500;
+    }
+    .alert-error { background: #f8d7da; color: #721c24; }
+    .alert-success { background: #d1edff; color: var(--primary-dark); }
+
+    .loader { display: none; text-align: center; margin: 20px 0; }
+    .spinner {
+      border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
+      border-radius: 50%; width: 50px; height: 50px;
+      animation: spin 1s linear infinite; margin: auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+
+    .results-section { display: none; margin-top: 20px; }
+    .corrected-text {
+      background: var(--light); border: 1px solid #e9ecef;
+      border-radius: 10px; padding: 15px;
+      white-space: pre-wrap; line-height: 1.8;
+    }
+    .stat-card {
+      background: #fff; padding: 10px; border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,.05);
+      text-align: center;
+    }
+    .stat-number { font-size: 1.5rem; color: var(--primary); font-weight: bold; }
+    .errors-list .error-item {
+      background: #fff3cd; padding: 12px; border-radius: 8px;
+      margin: 10px 0; border: 1px solid #ffeaa7;
+    }
+    .error-message { color: #856404; font-weight: bold; }
+    .suggestions { color: var(--success); margin-top: 5px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="grammar-card">
-            <div class="header">
-                <h1>🔍 Grammar Checker</h1>
-                <p>Check your English text for grammar, spelling, and punctuation errors</p>
-            </div>
-            
-            <div class="alert alert-error" id="errorAlert"></div>
-            <div class="alert alert-success" id="successAlert"></div>
-            
-            <div class="input-section">
-                <h2 class="section-title">📝 Enter Your Text</h2>
-                <textarea id="inputText" placeholder="Type or paste your English text here...&#10;Example: I am go to school every days and does my homeworks"></textarea>
-                
-                <div class="controls">
-                    <button class="btn btn-primary" onclick="checkGrammar()">
-                        <span>🔍 Check Grammar</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="clearText()">
-                        <span>🗑️ Clear</span>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="loader" id="loader">
-                <div class="spinner"></div>
-                <p>Checking your text for errors...</p>
-            </div>
-            
-            <div class="results-section" id="resultsSection">
-                <h2 class="section-title">✅ Results</h2>
-                
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="errorsCount">0</div>
-                        <div class="stat-label">Errors Found</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="suggestionsCount">0</div>
-                        <div class="stat-label">Suggestions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="timeTaken">0s</div>
-                        <div class="stat-label">Time Taken</div>
-                    </div>
-                </div>
-                
-                <h3 class="section-title">📄 Corrected Text</h3>
-                <div class="corrected-text" id="correctedText"></div>
-                
-                <div class="errors-list" id="errorsList"></div>
-            </div>
-        </div>
-    </div>
+  <div class="container">
+    <div class="grammar-card">
+      <div class="header">
+        <h1>🔍 Free Grammar Checker</h1>
+        <p>Instantly check grammar, spelling, and punctuation in English text</p>
+      </div>
 
-    <script>
-        let startTime;
-        
-        async function checkGrammar() {
-            const inputText = document.getElementById('inputText').value.trim();
-            const resultsSection = document.getElementById('resultsSection');
-            const loader = document.getElementById('loader');
-            const errorAlert = document.getElementById('errorAlert');
-            const successAlert = document.getElementById('successAlert');
-            
-            // Hide previous results and alerts
-            resultsSection.style.display = 'none';
-            errorAlert.style.display = 'none';
-            successAlert.style.display = 'none';
-            
-            // Validate input
-            if (!inputText) {
-                showError('Please enter some text to check.');
-                return;
-            }
-            
-            if (inputText.length < 5) {
-                showError('Please enter at least 5 characters.');
-                return;
-            }
-            
-            // Show loader
-            loader.style.display = 'block';
-            startTime = new Date();
-            
-            try {
-                const response = await fetch('/check-grammar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: inputText })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Server error');
-                }
-                
-                if (data.success) {
-                    displayResults(data);
-                    showSuccess('Text checked successfully!');
-                } else {
-                    throw new Error(data.error || 'Unknown error');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError('Failed to check grammar: ' + error.message);
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-        
-        function displayResults(data) {
-            const resultsSection = document.getElementById('resultsSection');
-            const correctedText = document.getElementById('correctedText');
-            const errorsCount = document.getElementById('errorsCount');
-            const suggestionsCount = document.getElementById('suggestionsCount');
-            const timeTaken = document.getElementById('timeTaken');
-            const errorsList = document.getElementById('errorsList');
-            
-            // Calculate time taken
-            const endTime = new Date();
-            const timeDiff = (endTime - startTime) / 1000;
-            timeTaken.textContent = timeDiff.toFixed(2) + 's';
-            
-            // Update stats
-            errorsCount.textContent = data.errorsCount;
-            suggestionsCount.textContent = data.errors.reduce((count, error) => 
-                count + (error.replacements ? error.replacements.length : 0), 0);
-            
-            // Display corrected text
-            correctedText.textContent = data.correctedText;
-            
-            // Display errors list
-            errorsList.innerHTML = '';
-            if (data.errors.length > 0) {
-                const errorsTitle = document.createElement('h3');
-                errorsTitle.className = 'section-title';
-                errorsTitle.innerHTML = '⚠️ Detected Errors';
-                errorsList.appendChild(errorsTitle);
-                
-                data.errors.forEach((error, index) => {
-                    const errorItem = document.createElement('div');
-                    errorItem.className = 'error-item';
-                    
-                    let suggestionsHtml = '';
-                    if (error.replacements && error.replacements.length > 0) {
-                        suggestionsHtml = `
-                            <div class="suggestions">
-                                <strong>Suggestions:</strong> 
-                                ${error.replacements.map(rep => rep.value).join(', ')}
-                            </div>
-                        `;
-                    }
-                    
-                    errorItem.innerHTML = `
-                        <div class="error-message">
-                            <strong>Error ${index + 1}:</strong> ${error.message}
-                        </div>
-                        ${suggestionsHtml}
-                        <div style="color: #666; font-size: 0.9rem; margin-top: 5px;">
-                            <strong>Context:</strong> "${error.context}"
-                        </div>
-                    `;
-                    
-                    errorsList.appendChild(errorItem);
-                });
-            }
-            
-            // Show results section
-            resultsSection.style.display = 'block';
-        }
-        
-        function showError(message) {
-            const errorAlert = document.getElementById('errorAlert');
-            errorAlert.textContent = message;
-            errorAlert.style.display = 'block';
-        }
-        
-        function showSuccess(message) {
-            const successAlert = document.getElementById('successAlert');
-            successAlert.textContent = message;
-            successAlert.style.display = 'block';
-        }
-        
-        function clearText() {
-            document.getElementById('inputText').value = '';
-            document.getElementById('resultsSection').style.display = 'none';
-            document.getElementById('errorAlert').style.display = 'none';
-            document.getElementById('successAlert').style.display = 'none';
-        }
-        
-        // Enable Ctrl+Enter to check grammar
-        document.getElementById('inputText').addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'Enter') {
-                checkGrammar();
-            }
-        });
-    </script>
+      <div class="alert alert-error" id="errorAlert"></div>
+      <div class="alert alert-success" id="successAlert"></div>
+
+      <textarea id="inputText" placeholder="Type or paste your text here...&#10;Example: He go to school every day."></textarea>
+
+      <div class="controls">
+        <button class="btn btn-primary" onclick="checkGrammar()">🔍 Check Grammar</button>
+        <button class="btn btn-secondary" onclick="clearText()">🗑️ Clear</button>
+      </div>
+
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Checking grammar, please wait...</p>
+      </div>
+
+      <div class="results-section" id="resultsSection">
+        <h2>✅ Results</h2>
+        <div class="stats">
+          <div class="stat-card"><div class="stat-number" id="errorsCount">0</div><div>Errors</div></div>
+          <div class="stat-card"><div class="stat-number" id="suggestionsCount">0</div><div>Suggestions</div></div>
+        </div>
+
+        <h3>📄 Corrected Text</h3>
+        <div class="corrected-text" id="correctedText"></div>
+
+        <div class="errors-list" id="errorsList"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+let startTime;
+async function checkGrammar() {
+  const inputText = document.getElementById('inputText').value.trim();
+  const loader = document.getElementById('loader');
+  const resultsSection = document.getElementById('resultsSection');
+  const errorAlert = document.getElementById('errorAlert');
+  const successAlert = document.getElementById('successAlert');
+
+  resultsSection.style.display = 'none';
+  errorAlert.style.display = 'none';
+  successAlert.style.display = 'none';
+
+  if (!inputText) return showError("Please enter some text to check.");
+  if (inputText.length < 5) return showError("Please enter at least 5 characters.");
+
+  loader.style.display = 'block';
+  startTime = new Date();
+
+  try {
+    const response = await fetch('/check-grammar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: inputText })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.error || "Server error");
+    displayResults(data);
+    showSuccess("Grammar check completed successfully!");
+  } catch (err) {
+    showError("Error: " + err.message);
+  } finally {
+    loader.style.display = 'none';
+  }
+}
+
+function displayResults(data) {
+  document.getElementById('resultsSection').style.display = 'block';
+  document.getElementById('errorsCount').textContent = data.errorsCount;
+  document.getElementById('suggestionsCount').textContent = data.errors.reduce((c,e)=>c+(e.replacements?.length||0),0);
+  document.getElementById('correctedText').textContent = data.correctedText;
+
+  const errorsList = document.getElementById('errorsList');
+  errorsList.innerHTML = '';
+  if (data.errors.length) {
+    const title = document.createElement('h3');
+    title.textContent = "⚠️ Detected Errors";
+    errorsList.appendChild(title);
+    data.errors.forEach((e,i)=>{
+      const div=document.createElement('div');
+      div.className='error-item';
+      div.innerHTML=`
+        <div class="error-message">Error ${i+1}: ${e.message}</div>
+        ${e.replacements?.length?`<div class="suggestions"><strong>Suggestions:</strong> ${e.replacements.map(r=>r.value).join(', ')}</div>`:''}
+        <div style="font-size:0.9rem;color:#555"><strong>Context:</strong> ${e.context || "N/A"}</div>
+      `;
+      errorsList.appendChild(div);
+    });
+  }
+}
+
+function clearText() {
+  document.getElementById('inputText').value='';
+  document.getElementById('resultsSection').style.display='none';
+  document.getElementById('errorAlert').style.display='none';
+  document.getElementById('successAlert').style.display='none';
+}
+
+function showError(msg){const e=document.getElementById('errorAlert');e.textContent=msg;e.style.display='block';}
+function showSuccess(msg){const e=document.getElementById('successAlert');e.textContent=msg;e.style.display='block';}
+</script>
 </body>
 </html>
