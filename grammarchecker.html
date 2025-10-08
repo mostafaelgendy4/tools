@@ -36,8 +36,7 @@
       background: #fff;
       border-radius: 5px;
       box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-    }
-    .corrected {
+      font-size: 18px;
       font-weight: bold;
       color: green;
     }
@@ -68,17 +67,20 @@
         const result = await response.json();
 
         let correctedText = text;
-        // apply replacements from last to first to avoid messing up offsets
+        // نطبق التعديلات من آخر لآخر لتجنب تضارب الـ offset
         result.matches.reverse().forEach(match => {
           if (match.replacements.length > 0) {
             const replacement = match.replacements[0].value;
             const offset = match.offset;
             const length = match.length;
-            correctedText = correctedText.substring(0, offset) + replacement + correctedText.substring(offset + length);
+            correctedText =
+              correctedText.substring(0, offset) +
+              replacement +
+              correctedText.substring(offset + length);
           }
         });
 
-        resultsDiv.innerHTML = `<p class="corrected">Corrected Sentence:<br>${correctedText}</p>`;
+        resultsDiv.innerHTML = correctedText;
       } catch (error) {
         resultsDiv.innerHTML = "Failed to check grammar. Please try again.";
       }
