@@ -6,83 +6,66 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
-      background: #f7f7f7;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
+      margin: 20px;
+      background: #f9f9f9;
     }
     textarea {
       width: 100%;
-      height: 120px;
+      height: 150px;
       padding: 10px;
-      margin-bottom: 15px;
+      font-size: 16px;
     }
     button {
+      margin-top: 10px;
       padding: 10px 20px;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
+      font-size: 16px;
       cursor: pointer;
     }
-    button:hover {
-      background: #0056b3;
-    }
-    .results {
+    .output {
       margin-top: 20px;
-      padding: 15px;
+      padding: 10px;
       background: #fff;
-      border-radius: 5px;
-      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-      font-size: 18px;
-      font-weight: bold;
-      color: green;
+      border: 1px solid #ddd;
+      min-height: 100px;
     }
   </style>
 </head>
 <body>
-  <h1>Grammar Checker</h1>
-  <textarea id="textInput" placeholder="Type your sentence here..."></textarea><br>
+  <h2>Grammar Checker</h2>
+  <textarea id="inputText" placeholder="Type your text here..."></textarea>
+  <br>
   <button onclick="checkGrammar()">Check Grammar</button>
-  <div class="results" id="results"></div>
+  <div class="output" id="outputText"></div>
 
   <script>
     async function checkGrammar() {
-      const text = document.getElementById("textInput").value;
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "Checking...";
+      const input = document.getElementById("inputText").value;
+      const outputDiv = document.getElementById("outputText");
+      outputDiv.innerHTML = "Checking...";
 
       try {
-        const response = await fetch("https://api.languagetool.org/v2/check", {
+        const response = await fetch("https://api.openai.com/v1/responses", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            text: text,
-            language: "en-US"
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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"
+          },
+          body: JSON.stringify({
+            model: "gpt-4.1-mini",
+            input: `Correct the grammar in the following text: ${input}`
           })
         });
 
-        const result = await response.json();
-
-        let correctedText = text;
-        // نطبق التعديلات من آخر لآخر لتجنب تضارب الـ offset
-        result.matches.reverse().forEach(match => {
-          if (match.replacements.length > 0) {
-            const replacement = match.replacements[0].value;
-            const offset = match.offset;
-            const length = match.length;
-            correctedText =
-              correctedText.substring(0, offset) +
-              replacement +
-              correctedText.substring(offset + length);
-          }
-        });
-
-        resultsDiv.innerHTML = correctedText;
+        const data = await response.json();
+        console.log(data);
+        if (data.output && data.output[0].content[0].text) {
+          outputDiv.innerHTML = "<b>Corrected Text:</b><br>" + data.output[0].content[0].text;
+        } else {
+          outputDiv.innerHTML = "No response from API.";
+        }
       } catch (error) {
-        resultsDiv.innerHTML = "Failed to check grammar. Please try again.";
+        console.error(error);
+        outputDiv.innerHTML = "Error: " + error.message;
       }
     }
   </script>
