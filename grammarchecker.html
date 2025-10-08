@@ -2,29 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grammar Checker</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    textarea { width: 100%; height: 150px; margin-bottom: 10px; padding: 10px; font-size: 16px; }
-    button { padding: 10px 20px; background: #3498db; color: white; border: none; cursor: pointer; }
-    button:hover { background: #2980b9; }
-    .results { margin-top: 20px; padding: 15px; background: white; border-radius: 8px; }
-    .error { color: red; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    .issue {
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #f1f1f1;
+      border-left: 4px solid #007bff;
+    }
+    .suggestions {
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>🔍 Grammar Checker</h1>
-  <textarea id="inputText" placeholder="Type your text here..."></textarea><br>
+  <h1>Grammar Checker</h1>
+  <textarea id="textInput" placeholder="Type your sentence here..."></textarea><br>
   <button onclick="checkGrammar()">Check Grammar</button>
-
   <div class="results" id="results"></div>
 
   <script>
     async function checkGrammar() {
-      const text = document.getElementById("inputText").value.trim();
+      const text = document.getElementById("textInput").value;
       const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "⏳ Checking...";
+      resultsDiv.innerHTML = "Checking...";
 
       try {
         const response = await fetch("https://api.languagetool.org/v2/check", {
@@ -36,25 +71,31 @@
           })
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
-        if (data.matches.length === 0) {
-          resultsDiv.innerHTML = "<p style='color:green'>✅ No errors found!</p>";
+        if (result.matches.length === 0) {
+          resultsDiv.innerHTML = "<p>No issues found 🎉</p>";
         } else {
-          resultsDiv.innerHTML = "<h3>⚠️ Errors Found:</h3>";
-          data.matches.forEach((match, i) => {
-            resultsDiv.innerHTML += `
-              <div class="error">
-                <p><strong>Error ${i+1}:</strong> ${match.message}</p>
-                <p><strong>Suggestion:</strong> ${match.replacements.map(r => r.value).join(", ") || "None"}</p>
-                <hr>
-              </div>
+          resultsDiv.innerHTML = "";
+          result.matches.forEach((match, index) => {
+            const issue = document.createElement("div");
+            issue.classList.add("issue");
+
+            const context = match.context.text;
+            const offset = match.context.offset;
+            const length = match.context.length;
+            const errorText = context.substr(offset, length);
+
+            issue.innerHTML = `
+              <p><b>Issue ${index + 1}:</b> "${errorText}"</p>
+              <p class="suggestions">Suggestions: ${match.replacements.map(r => r.value).join(", ")}</p>
             `;
+
+            resultsDiv.appendChild(issue);
           });
         }
-
       } catch (error) {
-        resultsDiv.innerHTML = "❌ Error: " + error.message;
+        resultsDiv.innerHTML = "Failed to check grammar. Please try again.";
       }
     }
   </script>
